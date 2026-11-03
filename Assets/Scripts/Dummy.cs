@@ -5,15 +5,17 @@ public class Dummy : MonoBehaviour
 {
     private UnityEngine.AI.NavMeshAgent agent;
     private bool isRunning = false;
-    private GameObject[] targets;   
+    private GameObject[] targets;
     private float standTime = 0f;
-    private Vector3 lastPosition = Vector3.zero; 
+    private Vector3 lastPosition = Vector3.zero;
     [SerializeField] private Material stopMaterial;
 
     void Awake()
     {
         agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
     }
+
+
 
     void OnEnable()
     {
@@ -25,27 +27,20 @@ public class Dummy : MonoBehaviour
     {
         SimulationManager.StartSimulation -= StartSimulation;
         SimulationManager.StopSimulation -= StopSimulation;
-    }
+    }    
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         if (!isRunning) return;
 
-        if(!agent.pathPending && (agent.remainingDistance <= agent.stoppingDistance)) FindAvailableAndClosestTarget();
-        
+        if(!agent.pathPending && (agent.remainingDistance <= agent.stoppingDistance)) FindAvailableAndClosestTarget();       
+
         if(Vector3.Distance(transform.position, lastPosition) <= 0.005f) standTime += Time.deltaTime;
-        else standTime = 0;        
+        else standTime = 0;
 
         if(standTime >= 2f)
         {
-            GetComponent<Renderer>().material = stopMaterial;            
+            GetComponent<Renderer>().material = stopMaterial;
             agent.enabled = true;
             StopSimulation();
         }
@@ -83,8 +78,9 @@ public class Dummy : MonoBehaviour
 
                 if(found && path.status == NavMeshPathStatus.PathComplete)
                 {
-                    closest = target;                
+                    closest = target; 
                     closestDistance = distance;
+
                 }
             }
         }
