@@ -3,7 +3,7 @@ using UnityEngine.AI;
 
 public class Dummy : MonoBehaviour
 {
-    private UnityEngine.AI.NavMeshAgent agent;
+    private NavMeshAgent agent;
     private bool isRunning = false;
     private GameObject[] targets;
     private float standTime = 0f;
@@ -12,10 +12,8 @@ public class Dummy : MonoBehaviour
 
     void Awake()
     {
-        agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        agent = GetComponent<NavMeshAgent>();
     }
-
-
 
     void OnEnable()
     {
@@ -31,17 +29,30 @@ public class Dummy : MonoBehaviour
 
     void Update()
     {
-        if (!isRunning) return;
+        if (!isRunning || agent == null || !agent.isOnNavMesh || !agent.enabled) return;
 
-        if(!agent.pathPending && (agent.remainingDistance <= agent.stoppingDistance)) FindAvailableAndClosestTarget();       
+        if(!agent.pathPending && agent.hasPath && (agent.remainingDistance <= agent.stoppingDistance)) FindAvailableAndClosestTarget();        
 
-        if(Vector3.Distance(transform.position, lastPosition) <= 0.005f) standTime += Time.deltaTime;
-        else standTime = 0;
-
-        if(standTime >= 2f)
+        if(Vector3.Distance(transform.position, lastPosition) <= 0.005f)
         {
-            GetComponent<Renderer>().material = stopMaterial;
+            if (!agent.pathPending && agent.hasPath && agent.remainingDistance > agent.stoppingDistance)
+            {
+                standTime += Time.deltaTime;
+            }            
+        } 
+        else standTime = 0f;        
+
+        if(standTime >= 3f)
+        {
+            Renderer renderer = GetComponent<Renderer>();
+            if (renderer != null && stopMaterial != null)
+            {
+                renderer.material = stopMaterial;
+            }
+
             agent.enabled = true;
+
+
             StopSimulation();
         }
 
@@ -50,24 +61,38 @@ public class Dummy : MonoBehaviour
 
     private void StartSimulation()
     {
+        if (agent == null || !agent.enabled || !agent.isOnNavMesh) return;
+
         targets = GameObject.FindGameObjectsWithTag("Target");
-        isRunning = true;
+        isRunning = true;        
+
+        if (agent != null && agent.isOnNavMesh) agent.isStopped = false;        
+
         FindAvailableAndClosestTarget();
     }
 
     private void StopSimulation()
     {
         isRunning = false;
+
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+        }
     }
 
     private void FindAvailableAndClosestTarget()
     {
+        if (targets == null || targets.Length == 0) return;
+
         GameObject closest = null;
-        float closestDistance = Mathf. Infinity;
-        Vector3 currentPosition = transform.position;
+        float closestDistance = Mathf.Infinity;
+        Vector3 currentPosition = transform.position;                
 
         foreach(GameObject target in targets)
         {
+            if (target == null) continue;
+
             Vector3 distanceVector = target.transform.position - currentPosition;
             float distance = distanceVector.sqrMagnitude;
 
@@ -80,13 +105,11 @@ public class Dummy : MonoBehaviour
                 {
                     closest = target; 
                     closestDistance = distance;
-
                 }
             }
         }
 
-        if (closest == null) return;
-
-        agent.SetDestination (closest.transform.position);
+        if (closest == null) return;        
+        else agent.SetDestination(closest.transform.position);
     }
 }

@@ -4,11 +4,6 @@ public class FireSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject fire;
     
-    void Start()
-    {
-        
-    }
-    
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -20,7 +15,7 @@ public class FireSpawner : MonoBehaviour
             {
                 Vector3 fireLocation = hit.point + Vector3.up * 0.01f;
                 Instantiate(fire, fireLocation, Quaternion.identity);
-            }        
+            }
         }
     }
 }
