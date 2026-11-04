@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 9131892989951237494}
   - component: {fileID: 516397919336698714}
   - component: {fileID: 6219299948476404744}
+  - component: {fileID: -5552004923766140685}
   m_Layer: 0
   m_Name: Dummy
   m_TagString: Dummy
@@ -179,3 +180,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dummy
   stopMaterial: {fileID: 2100000, guid: 959d5a35153a36a49b70ab06acd3198c, type: 2}
+--- !u!136 &-5552004923766140685
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4334477177493033076}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
