@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using TMPro;
 
 public class SimulationManager : MonoBehaviour
 {
@@ -8,26 +9,38 @@ public class SimulationManager : MonoBehaviour
 
     public static float SimulationInterval { get; private set; } = 2f;
 
-    public static int savedCount = 0;
-    public static int deadCount = 0;
+    private int savedCount = 0;
+    private int deadCount = 0;
+
+    [SerializeField] private TextMeshProUGUI savedText;
+    [SerializeField] private TextMeshProUGUI deadText;
+
+    private static SimulationManager instance;
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
     public void StartButtonClicked()
     {
         savedCount = 0;
-        deadCount = 0;
+        deadCount = 0;         
 
         StartSimulation?.Invoke();
     }
 
     public static void RegisterSaved()
     {
-        savedCount++;
-        Debug.Log("savedCount: " + savedCount);
+        if (instance == null) return;
+        instance.savedCount++;
+        if (instance.savedText != null) instance.savedText.text = "Survivors: " + instance.savedCount;
     }
 
     public static void RegisterDead()
     {
-        deadCount++;
-        Debug.Log("deadCount: " + deadCount);
+        if (instance == null) return;
+        instance.deadCount++;
+        if (instance.deadText != null) instance.deadText.text = "Dead: " + instance.deadCount;
     }
 }

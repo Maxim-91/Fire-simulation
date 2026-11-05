@@ -34,11 +34,11 @@ public class Dummy : MonoBehaviour
     {
         if (!isRunning || agent == null || !agent.isOnNavMesh || !agent.enabled) return;
 
-        if(!agent.pathPending && agent.hasPath && (agent.remainingDistance <= agent.stoppingDistance)) FindAvailableAndClosestTarget();        
+        if(!agent.pathPending && (agent.remainingDistance <= agent.stoppingDistance)) FindAvailableAndClosestTarget();        
 
         if(Vector3.Distance(transform.position, lastPosition) <= 0.005f)
         {
-            if (!agent.pathPending && agent.hasPath && agent.remainingDistance > agent.stoppingDistance)
+            if (!agent.pathPending && (agent.remainingDistance > agent.stoppingDistance))
             {
                 standTime += Time.deltaTime;
             }            
@@ -63,11 +63,6 @@ public class Dummy : MonoBehaviour
             // 3. If there is a path, there might be a traffic jam.
             else standTime = 0f;
 
-            
-            //Renderer renderer = GetComponent<Renderer>();
-            //if (renderer != null && stopMaterial != null)  renderer.material = stopMaterial;
-            //agent.enabled = true;
-            //StopSimulation();
         }
 
         lastPosition = transform.position;
@@ -100,31 +95,43 @@ public class Dummy : MonoBehaviour
         if (targets == null || targets.Length == 0) return;
 
         GameObject closest = null;
-        float closestDistance = Mathf.Infinity;
-        Vector3 currentPosition = transform.position;                
+        float shortestPathLength = Mathf.Infinity;
 
-        foreach(GameObject target in targets)
+        foreach (GameObject target in targets)
         {
             if (target == null) continue;
 
-            Vector3 distanceVector = target.transform.position - currentPosition;
-            float distance = distanceVector.sqrMagnitude;
-
-            if(distance < closestDistance)
+            NavMeshPath path = new NavMeshPath();
+            if (agent.CalculatePath(target.transform.position, path) && path.status == NavMeshPathStatus.PathComplete)
             {
-                NavMeshPath path = new NavMeshPath();
-                bool found = agent.CalculatePath(target.transform.position, path);
+                // Calculate the actual length of the NavMesh route
+                float pathLength = GetPathLength(path);
 
-                if(found && path.status == NavMeshPathStatus.PathComplete)
+                if (pathLength < shortestPathLength)
                 {
-                    closest = target; 
-                    closestDistance = distance;
+                    shortestPathLength = pathLength;
+                    closest = target;
                 }
             }
         }
 
-        if (closest == null) return;        
-        else agent.SetDestination(closest.transform.position);
+        if (closest != null)
+        {
+            agent.SetDestination(closest.transform.position);
+        }
+    }
+
+    // Auxiliary method for calculating NavMesh route length
+    private float GetPathLength(NavMeshPath path)
+    {
+        float length = 0f;
+        if (path.corners.Length < 2) return length;
+
+        for (int i = 0; i < path.corners.Length - 1; i++)
+        {
+            length += Vector3.Distance(path.corners[i], path.corners[i + 1]);
+        }
+        return length;
     }
 
     private bool HasReachableTarget()
